@@ -197,5 +197,6 @@ The solution is implemented as a **C# .NET Console Application**.
 ### How to Run
 
 ```bash
+cd ServerAssigner
 dotnet restore
 dotnet run
