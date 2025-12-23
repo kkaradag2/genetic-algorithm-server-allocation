@@ -101,29 +101,27 @@ f(\mathbf{a}) =
 + \lambda \left( O_{\text{CPU}}(\mathbf{a}) + O_{\text{RAM}}(\mathbf{a}) \right)
 $$
 
-
 where the CPU capacity violation is defined as:
 
 $$
-O_{\text{CPU}}(\mathbf{a}) =
+O_{\text{CPU}}(a) =
 \sum_{j=1}^{K}
 \max \left(
 0,
-\sum_{i \in S_j(\mathbf{a})} \text{CPU}_i - W_{\text{CPU},j}
+\sum_{i \in S_j(a)} \text{CPU}_i - W_{\text{CPU},j}
 \right)
 $$
 
 and the RAM capacity violation is defined as:
 
 $$
-O_{\text{RAM}}(\mathbf{a}) =
+O_{\text{RAM}}(a) =
 \sum_{j=1}^{K}
 \max \left(
 0,
-\sum_{i \in S_j(\mathbf{a})} \text{RAM}_i - W_{\text{RAM},j}
+\sum_{i \in S_j(a)} \text{RAM}_i - W_{\text{RAM},j}
 \right)
 $$
-
 
 
 
