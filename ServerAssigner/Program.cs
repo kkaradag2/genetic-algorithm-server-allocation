@@ -1,4 +1,6 @@
-﻿namespace ServerAssigner
+﻿using ServerAssigner.Models;
+
+namespace ServerAssigner
 {
     public class Program
     {
@@ -18,28 +20,29 @@
 
         static void Main(string[] args)
         {
+            var runResults = new List<RunResult>();
 
-            for (int run = 1; run <= runSystemAtTimes; run++) 
+            for (int run = 1; run <= runSystemAtTimes; run++)
             {
+                Console.WriteLine($"\n========== Run {run} of the Genetic Algorithm ==========\n");
 
-                Console.WriteLine($"\n========== Run {run} of the Genetic Algorithm ==========");
-                Console.WriteLine();
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
                 int noImprovementCount = 0;
                 double lastBestFitness = double.MaxValue;
+                double bestFitnessOfRun = double.MaxValue;
 
                 // 1) Initial population
                 var population = GenerateInitialPopulation(populationSize);
 
-                Console.WriteLine("\nSTEP 1 - INITIAL POPULATION");
+                Console.WriteLine("STEP 1 - INITIAL POPULATION");
                 PrintPopulation(population);
 
                 // 2) GA MAIN LOOP
                 for (int gen = 1; gen <= generations; gen++)
                 {
-                    Console.WriteLine($"\nSTEP 2 - PARENT SELECTION Gen:{gen}");
+                    Console.WriteLine($"\nSTEP 2 - PARENT SELECTION | Gen {gen}");
 
-                    // Parent selection
                     var parentPairs = SelectParentPairsRoulette(
                         population,
                         lambda,
@@ -47,16 +50,13 @@
                     );
                     PrintParentPairs(parentPairs);
 
-                    Console.WriteLine($"\nSTEP 3 - CROSSOVER Gen:{gen}");
-                    // Crossover
+                    Console.WriteLine($"\nSTEP 3 - CROSSOVER | Gen {gen}");
                     var offspring = UniformCrossoverWithLogging(parentPairs);
 
-                    Console.WriteLine($"\nSTEP 4 - MUTATION Gen:{gen}");
-                    // Mutation
-                    MutateFirstGene(offspring);
+                    Console.WriteLine($"\nSTEP 4 - MUTATION | Gen {gen}");
+                    SwapMutation(offspring);
                     PrintOffspringAfterMutation(offspring);
 
-                    // Replacement
                     population = ElitistReplacement(
                         population,
                         offspring,
@@ -65,11 +65,9 @@
                         populationSize
                     );
 
-                    Console.WriteLine("\nSTEP 5 - REPLACEMENT (NEW POPULATION) ");
+                    Console.WriteLine("\nSTEP 5 - REPLACEMENT (NEW POPULATION)");
                     PrintPopulation(population);
 
-
-                    // Best of generation
                     var bestOfGen = population
                         .OrderBy(ind => Fitness(ind, lambda))
                         .First();
@@ -81,7 +79,11 @@
                         $"Best Gen {gen}: [{string.Join(", ", bestOfGen)}] Fitness = {bestFitness}"
                     );
 
-                    // Early stopping
+                    // Run içindeki en iyi çözümü takip et
+                    if (bestFitness < bestFitnessOfRun)
+                        bestFitnessOfRun = bestFitness;
+
+                    // Early stopping kontrolü
                     if (bestFitness < lastBestFitness)
                     {
                         lastBestFitness = bestFitness;
@@ -101,12 +103,42 @@
                     }
                 }
 
-                Console.WriteLine("\n=========== FINAL BEST SOLUTION ===========");
-                PrintBestIndividual(population);
+                stopwatch.Stop();
+
+                runResults.Add(new RunResult
+                {
+                    RunId = run,
+                    BestFitness = bestFitnessOfRun,
+                    ElapsedMilliseconds = stopwatch.ElapsedMilliseconds
+                });
+
+                Console.WriteLine(
+                    $"\nRun {run} completed | Best Fitness = {bestFitnessOfRun} | Time = {stopwatch.ElapsedMilliseconds} ms"
+                );
             }
 
-           
+            // =======================
+            // EXPERIMENTAL RESULTS
+            // =======================
+            Console.WriteLine("\n=========== EXPERIMENTAL RESULTS SUMMARY ===========");
+
+            double meanFitness = runResults.Average(r => r.BestFitness);
+            double bestFitnessOverall = runResults.Min(r => r.BestFitness);
+            double stdDevFitness = Math.Sqrt(
+                runResults.Average(r => Math.Pow(r.BestFitness - meanFitness, 2))
+            );
+
+            double meanTime = runResults.Average(r => r.ElapsedMilliseconds);
+            double bestTime = runResults.Min(r => r.ElapsedMilliseconds);
+
+            Console.WriteLine($"Mean Best Fitness      : {meanFitness}");
+            Console.WriteLine($"Best Fitness Overall   : {bestFitnessOverall}");
+            Console.WriteLine($"Std. Deviation Fitness : {stdDevFitness}");
+
+            Console.WriteLine($"Mean Time (ms)         : {meanTime}");
+            Console.WriteLine($"Best Time (ms)         : {bestTime}");
         }
+
 
         // =======================
         // INITIAL POPULATION
@@ -307,26 +339,32 @@
         }
 
         // =======================
-        // MUTATION
+        // MUTATION - SWAP OPERATION
         // =======================
-        static void MutateFirstGene(List<int[]> offspring)
+        static void SwapMutation(List<int[]> offspring)
         {
+            int length = GAEnvironment.Microservices.Length;
+
             foreach (var child in offspring)
             {
                 if (rand.NextDouble() < mutationRate)
                 {
-                    int oldVal = child[0];
-                    int newVal;
+                    int i = rand.Next(length);
+                    int j;
+
                     do
                     {
-                        newVal = rand.Next(GAEnvironment.Servers.Length);
-                    }
-                    while (newVal == oldVal);
+                        j = rand.Next(length);
+                    } while (i == j);
 
-                    child[0] = newVal;
+                    // swap
+                    int temp = child[i];
+                    child[i] = child[j];
+                    child[j] = temp;
                 }
             }
         }
+
 
         // =======================
         // ELITISM + REPLACEMENT

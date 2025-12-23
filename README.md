@@ -1,3 +1,4 @@
+
 # Genetic Algorithm Based Server Assignment
 
 This project presents a **Genetic Algorithm (GA)**–based solution for a **server assignment problem**, where a set of microservices must be allocated to a limited number of heterogeneous servers under **CPU and RAM capacity constraints**.
@@ -8,9 +9,45 @@ The main objective is to **minimize total server cost** while satisfying resourc
 
 ## Problem Definition
 
+This is a sample problem defination that close the realworld problem but not same.
+
+A bank plans to deploy its microservice-based core banking system on a cloud infrastructure.The system consists of multiple independent microservices such as authentication, account management, money transfer, and notification services.
+Each microservice consumes a fractional amount of CPU and RAM depending on its workload and must be deployed on exactly one cloud server. 
+Each cloud server has fixed CPU and RAM capacities as well as a fixed operational cost. The total resource consumption of microservices assigned to a server must not exceed its capacity.
+The objective is to minimize the total operational cost of the cloud infrastructure while ensuring that all microservices are deployed without resource overload.
+
+This is a 2-dimensional Bin Packing Problem (CPU + RAM).
+The problem is NP-hard and is solved using a Genetic Algorithm
+
+
+
 Given:
 - A set of **microservices**, each with specific CPU and RAM requirements
+
+| Service Instance | Service Name                  | CPU | RAM |
+|------------------|-------------------------------|-----|-----|
+| S1               | AuthenticationService         | 4   | 16  |
+| S2               | AccountManagementService      | 8   | 32  |
+| S3               | TransactionService            | 2   | 8   |
+| S4               | PaymentProcessingService      | 4   | 64  |
+| S5               | CustomerProfileService        | 8   | 8   |
+| S6               | NotificationService           | 2   | 48  |
+| S7               | FraudDetectionService         | 2   | 2   |
+| S8               | ReportingService              | 1   | 8   |
+| S9               | AuditLoggingService           | 1   | 16  |
+| S10              | ConfigurationService          | 4   | 48  |
+
+
 - A set of **servers**, each with limited CPU and RAM capacities and an associated cost
+
+| Server   | CPU | RAM | Cost / Month |
+|----------|-----|-----|--------------|
+| Server 1 | 16  | 64  | 100          |
+| Server 2 | 32  | 128 | 180          |
+| Server 3 | 8   | 32  | 60           |
+| Server 4 | 2   | 4   | 10           |
+
+
 
 Objective:
 - Assign each microservice to exactly one server
@@ -23,16 +60,35 @@ This problem is closely related to the **Bin Packing Problem** and **resource-co
 
 ## Solution Approach
 
-A **Genetic Algorithm** is employed to efficiently explore the solution space and approximate near-optimal solutions.
+In this problem, a Genetic Algorithm (GA) is used to search for near-optimal solutions.
+According to the GA workflow, an initial population is first generated randomly.
+Then, parent selection is performed using the Roulette Wheel selection method.
+Uniform crossover is applied to generate offspring, followed by a swap operation as the mutation mechanism.
+Finally, elitist replacement is used to form the next generation of the population.
+
+This procedure is stochastic in nature; therefore, the algorithm is executed five independent times, and statistical measures of the best solutions are reported.
 
 ### Chromosome Representation
 
 Each solution (individual) is represented as an integer array:
 
-a = [a₁, a₂, ..., aₙ]
+\[
+\mathbf{a} = [a_1, a_2, \dots, a_n]
+\]
 
+where:
 
-Here, each gene `aᵢ` denotes the **index of the server** to which microservice `i` is assigned.
+\[
+a_i \in \{1, 2, \dots, K\}, \quad \forall i
+\]
+
+A sample chromosome is given as:
+
+\[
+\mathbf{a} = [1, 1, 2, 2, 1, 3, 3, 1, 2, 3]
+\]
+
+This chromosome represents a candidate solution in which each gene corresponds to a microservice, and its value indicates the server to which that microservice is assigned.
 
 ---
 
