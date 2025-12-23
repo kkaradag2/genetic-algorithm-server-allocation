@@ -56,7 +56,6 @@ Objective:
 
 This problem is closely related to the **Bin Packing Problem** and **resource-constrained assignment problems**, which are known to be **NP-hard**.
 
----
 
 ## Solution Approach
 
@@ -128,8 +127,8 @@ $$
 ### 1. Initial Population
 - A population of random candidate solutions is generated.
 - Each microservice is initially assigned to a randomly selected server.
+- Population size is defined as 'populationSize'  limited value.
 
----
 
 ### 2. Parent Selection (Roulette Wheel Selection)
 
@@ -143,7 +142,6 @@ where `F` is the sum of fitness values in the population.
 - Parents are selected using **roulette wheel selection**
 - Selected parents are grouped into **pairs** for crossover
 
----
 
 ### 3. Crossover (Uniform Crossover)
 - For each parent pair:
@@ -183,11 +181,13 @@ The performance of the algorithm was evaluated based on the best fitness values 
 The summary statistics of the experimental results are presented below:
 
 =========== EXPERIMENTAL RESULTS SUMMARY ===========
-Mean Best Fitness : 36946
-Best Fitness Overall : 30350
-Std. Deviation Fitness : 6971.716001100446
-Mean Time (ms) : 26
-Best Time (ms) : 13
+| Metric                    | Value              |
+|---------------------------|--------------------|
+| Mean Best Fitness         | 36946              |
+| Best Fitness Overall      | 30350              |
+| Std. Deviation Fitness    | 6971.716001100446  |
+| Mean Time (ms)            | 26                 |
+| Best Time (ms)            | 13                 |
 
 ---
 
