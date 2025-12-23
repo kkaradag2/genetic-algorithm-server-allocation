@@ -97,9 +97,10 @@ The fitness function is designed to minimize the total operational cost while pe
 
 $$
 f(\mathbf{a}) =
-\sum_{j=1}^{K} \big( \text{cost}_j \cdot y_j(\mathbf{a}) \big)
-+ \lambda \big( O_{\text{CPU}}(\mathbf{a}) + O_{\text{RAM}}(\mathbf{a}) \big)
+\sum_{j=1}^{K} \left( \text{cost}_j \cdot y_j(\mathbf{a}) \right)
++ \lambda \left( O_{\text{CPU}}(\mathbf{a}) + O_{\text{RAM}}(\mathbf{a}) \right)
 $$
+
 
 where the CPU capacity violation is defined as:
 
