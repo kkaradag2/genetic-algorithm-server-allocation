@@ -93,20 +93,38 @@ This chromosome represents a candidate solution in which each gene corresponds t
 
 ## Fitness Function
 
-The fitness function is defined as:
+The fitness function is designed to minimize the total operational cost while penalizing any capacity violations.
 
-f(a) = TotalServerCost + λ · (O_CPU(a) + O_RAM(a))
+$$
+f(\mathbf{a}) =
+\sum_{j=1}^{K} \big( \text{cost}_j \cdot y_j(\mathbf{a}) \big)
++ \lambda \big( O_{\text{CPU}}(\mathbf{a}) + O_{\text{RAM}}(\mathbf{a}) \big)
+$$
+
+where the CPU capacity violation is defined as:
+
+$$
+O_{\text{CPU}}(\mathbf{a}) =
+\sum_{j=1}^{K}
+\max \left(
+0,
+\sum_{i \in S_j(\mathbf{a})} \text{CPU}_i - W_{\text{CPU},j}
+\right)
+$$
+
+and the RAM capacity violation is defined as:
+
+$$
+O_{\text{RAM}}(\mathbf{a}) =
+\sum_{j=1}^{K}
+\max \left(
+0,
+\sum_{i \in S_j(\mathbf{a})} \text{RAM}_i - W_{\text{RAM},j}
+\right)
+$$
 
 
-Where:
-- `TotalServerCost`: Sum of the costs of all servers utilized in the solution
-- `O_CPU(a)`: Total CPU capacity violation
-- `O_RAM(a)`: Total RAM capacity violation
-- `λ`: Penalty coefficient controlling the severity of constraint violations
 
-This formulation allows infeasible solutions during the search while strongly penalizing them, guiding the algorithm toward feasible and cost-effective solutions.
-
----
 
 ## Genetic Algorithm Components
 
