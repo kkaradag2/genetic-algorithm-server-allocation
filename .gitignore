@@ -1,4 +1,6 @@
 # Visual Studio
 .vs/
-*.bin/
-*.obj/
+
+# .NET build outputs
+ServerAssigner/bin/
+ServerAssigner/obj/
