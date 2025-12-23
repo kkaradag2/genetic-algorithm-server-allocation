@@ -151,21 +151,21 @@ where `F` is the sum of fitness values in the population.
   - Genes are exchanged according to the mask
 - Each parent pair produces **two offspring**
 
----
+
 
 ### 4. Mutation
-- Mutation is applied to the **first gene** of an offspring
-- Mutation occurs with a predefined probability
-- The selected gene is reassigned to a different server
 
----
+Mutation is performed using a swap operation. With a predefined mutation probability, two gene positions are selected randomly, and their values are exchanged. This operator introduces diversity into the population while maintaining the structural validity of the chromosome.
+
+
+
 
 ### 5. Elitist Replacement
 - The best-performing individuals (elites) are preserved
 - Newly generated offspring replace weaker individuals
 - This guarantees that the best solution is never lost across generations
 
----
+
 
 ### 6. Termination Criteria
 
@@ -173,22 +173,21 @@ The algorithm terminates when:
 - The maximum number of generations is reached, **or**
 - No improvement is observed for a predefined number of consecutive generations (**early stopping**)
 
----
+
 
 ## Experimental Results
 
-Due to the stochastic nature of Genetic Algorithms, the program was executed multiple times.
+Due to the stochastic nature of Genetic Algorithms, the algorithm was executed multiple times under identical parameter settings.  
+The performance of the algorithm was evaluated based on the best fitness values and execution time obtained in each run.
 
-| Run | Best Initial Fitness | Best Final Fitness | Generations |
-|----:|---------------------:|-------------------:|------------:|
-| 1   | 65,350               | 23,350             | 20          |
-| 2   | 88,500               | 22,350             | 20          |
-| 3   | 55,290               | 42,340             | 13          |
+The summary statistics of the experimental results are presented below:
 
-These results indicate that:
-- The quality of the initial population varies between runs
-- The Genetic Algorithm consistently improves solution quality
-- Early stopping effectively reduces unnecessary iterations
+=========== EXPERIMENTAL RESULTS SUMMARY ===========
+Mean Best Fitness : 36946
+Best Fitness Overall : 30350
+Std. Deviation Fitness : 6971.716001100446
+Mean Time (ms) : 26
+Best Time (ms) : 13
 
 ---
 
