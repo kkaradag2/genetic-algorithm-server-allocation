@@ -153,10 +153,9 @@ where `F` is the sum of fitness values in the population.
 
 ### 4. Mutation
 
-Mutation is performed using a swap operation. With a predefined mutation probability, two gene positions are selected randomly, and their values are exchanged. This operator introduces diversity into the population while maintaining the structural validity of the chromosome.
-
-
-
+Swap mutation is used as the mutation operator.In this process, the first offspring is selected and a swap operation is applied.
+Two positions within the offspring are selected randomly, and their values are exchanged.If the resulting offspring is identical to the original one, the operation is repeated.
+To avoid an infinite loop, the number of attempts is limited to 10.
 
 ### 5. Elitist Replacement
 - The best-performing individuals (elites) are preserved

@@ -11,7 +11,7 @@ namespace ServerAssigner
         const int generations = 50;
         const int eliteCount = 2;
         const int parentCount = 2;      // 2 -> 1 pair, 4 -> 2 pair
-        const double mutationRate = 0.2;
+        const double mutationRate = 0.8;
         const double lambda = 1000.0;
         const int maxNoImprovement = 10;
         const int runSystemAtTimes = 5;
@@ -54,7 +54,7 @@ namespace ServerAssigner
                     var offspring = UniformCrossoverWithLogging(parentPairs);
 
                     Console.WriteLine($"\nSTEP 4 - MUTATION | Gen {gen}");
-                    SwapMutation(offspring);
+                    SwapMutation(offspring[0]);
                     PrintOffspringAfterMutation(offspring);
 
                     population = ElitistReplacement(
@@ -341,29 +341,44 @@ namespace ServerAssigner
         // =======================
         // MUTATION - SWAP OPERATION
         // =======================
-        static void SwapMutation(List<int[]> offspring)
+        static void SwapMutation(int[] offspring)
         {
-            int length = GAEnvironment.Microservices.Length;
 
-            foreach (var child in offspring)
+            int length = offspring.Length;
+
+            // Orijinal hali sakla 
+            int[] original = (int[])offspring.Clone();
+
+            const int maxAttempts = 10; // sonsuz döngü olmaması için bir limit
+            int attempts = 0;
+
+            while (attempts < maxAttempts)
             {
-                if (rand.NextDouble() < mutationRate)
+                int i = rand.Next(length);
+                int j;
+
+                do
                 {
-                    int i = rand.Next(length);
-                    int j;
+                    j = rand.Next(length);
+                } while (i == j);
 
-                    do
-                    {
-                        j = rand.Next(length);
-                    } while (i == j);
+                // swap
+                int temp = offspring[i];
+                offspring[i] = offspring[j];
+                offspring[j] = temp;
 
-                    // swap
-                    int temp = child[i];
-                    child[i] = child[j];
-                    child[j] = temp;
-                }
+                // Eğer gerçekten değiştiyse çık
+                if (!offspring.SequenceEqual(original))
+                    return;
+
+                // Aynı kaldıysa geri al ve tekrar dene
+                offspring[i] = temp;
+                offspring[j] = offspring[i];
+                attempts++;
             }
         }
+
+
 
 
         // =======================
@@ -442,7 +457,7 @@ namespace ServerAssigner
             Console.WriteLine("\n-- After Mutation --");
             int i = 1;
             foreach (var c in offspring)
-                Console.WriteLine($"Child {i++}: [{string.Join(", ", c)}]");
+                Console.WriteLine($"Offspring {i++}: [{string.Join(", ", c)}]");
         }
 
         static void PrintBestIndividual(List<int[]> population)
