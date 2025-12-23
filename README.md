@@ -96,9 +96,7 @@ This chromosome represents a candidate solution in which each gene corresponds t
 The fitness function is designed to minimize the total operational cost while penalizing any capacity violations.
 
 $$
-f(\mathbf{a}) =
-\sum_{j=1}^{K} \left( \text{cost}_j \cdot y_j(\mathbf{a}) \right)
-+ \lambda \left( O_{\text{CPU}}(\mathbf{a}) + O_{\text{RAM}}(\mathbf{a}) \right)
+f(a) = \sum_{j=1}^{K} (cost_j \cdot y_j(a)) + \lambda (O_{CPU}(a) + O_{RAM}(a))
 $$
 
 where the CPU capacity violation is defined as:
