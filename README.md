@@ -5,13 +5,13 @@ This project presents a **Genetic Algorithm (GA)**–based solution for a **serv
 
 The main objective is to **minimize total server cost** while satisfying resource constraints. Constraint violations are handled using a **penalty-based fitness function**, making the problem suitable for metaheuristic optimization techniques.
 
----
 
 ## Problem Definition
 
-This is a sample problem defination that close the realworld problem but not same.
+This is a sample problem definition that close the real-world senario but not same.
 
-A bank plans to deploy its microservice-based core banking system on a cloud infrastructure.The system consists of multiple independent microservices such as authentication, account management, money transfer, and notification services.
+A bank plans to deploy its microservice-based core banking system on a cloud infrastructure.
+The system consists of multiple independent microservices such as authentication, account management, money transfer, and notification services.
 Each microservice consumes a fractional amount of CPU and RAM depending on its workload and must be deployed on exactly one cloud server. 
 Each cloud server has fixed CPU and RAM capacities as well as a fixed operational cost. The total resource consumption of microservices assigned to a server must not exceed its capacity.
 The objective is to minimize the total operational cost of the cloud infrastructure while ensuring that all microservices are deployed without resource overload.
@@ -68,29 +68,28 @@ Finally, elitist replacement is used to form the next generation of the populati
 
 This procedure is stochastic in nature; therefore, the algorithm is executed five independent times, and statistical measures of the best solutions are reported.
 
-### Chromosome Representation
+## Chromosome Representation
 
 Each solution (individual) is represented as an integer array:
 
-\[
-\mathbf{a} = [a_1, a_2, \dots, a_n]
-\]
+$$
+\mathbf{a} = [a_1, a_2, \ldots, a_n]
+$$
 
 where:
 
-\[
-a_i \in \{1, 2, \dots, K\}, \quad \forall i
-\]
+$$
+a_i \in \{1, 2, \ldots, K\}, \quad \forall i
+$$
 
 A sample chromosome is given as:
 
-\[
+$$
 \mathbf{a} = [1, 1, 2, 2, 1, 3, 3, 1, 2, 3]
-\]
+$$
 
 This chromosome represents a candidate solution in which each gene corresponds to a microservice, and its value indicates the server to which that microservice is assigned.
 
----
 
 ## Fitness Function
 
