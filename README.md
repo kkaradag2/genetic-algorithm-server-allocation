@@ -172,22 +172,19 @@ The algorithm terminates when:
 - No improvement is observed for a predefined number of consecutive generations (**early stopping**)
 
 
-
 ## Experimental Results
 
-Due to the stochastic nature of Genetic Algorithms, the algorithm was executed multiple times under identical parameter settings.  
+Due to the stochastic nature of Genetic Algorithms, the algorithm was executed multiple times under identical parameter settings.
 The performance of the algorithm was evaluated based on the best fitness values and execution time obtained in each run.
 
 The summary statistics of the experimental results are presented below:
 
 =========== EXPERIMENTAL RESULTS SUMMARY ===========
-| Metric                    | Value              |
-|---------------------------|--------------------|
-| Mean Best Fitness         | 36946              |
-| Best Fitness Overall      | 30350              |
-| Std. Deviation Fitness    | 6971.716001100446  |
-| Mean Time (ms)            | 26                 |
-| Best Time (ms)            | 13                 |
+Mean Best Fitness : 36946
+Best Fitness Overall : 30350
+Std. Deviation Fitness : 6971.716001100446
+Mean Time (ms) : 26
+Best Time (ms) : 13
 
 ---
 
