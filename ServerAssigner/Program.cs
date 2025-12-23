@@ -12,83 +12,100 @@
         const double mutationRate = 0.2;
         const double lambda = 1000.0;
         const int maxNoImprovement = 10;
+        const int runSystemAtTimes = 5;
 
         static readonly Random rand = new Random();
 
         static void Main(string[] args)
         {
-            int noImprovementCount = 0;
-            double lastBestFitness = double.MaxValue;
 
-            // 1) Initial population
-            var population = GenerateInitialPopulation(populationSize);
-
-            Console.WriteLine("INITIAL POPULATION");
-            PrintPopulation(population);
-
-            // 2) GA MAIN LOOP
-            for (int gen = 1; gen <= generations; gen++)
+            for (int run = 1; run <= runSystemAtTimes; run++) 
             {
-                Console.WriteLine($"\n========== GENERATION {gen} ==========");
 
-                // Parent selection
-                var parentPairs = SelectParentPairsRoulette(
-                    population,
-                    lambda,
-                    parentCount
-                );
-                PrintParentPairs(parentPairs);
+                Console.WriteLine($"\n========== Run {run} of the Genetic Algorithm ==========");
+                Console.WriteLine();
 
-                // Crossover
-                var offspring = UniformCrossoverWithLogging(parentPairs);
+                int noImprovementCount = 0;
+                double lastBestFitness = double.MaxValue;
 
-                // Mutation
-                MutateFirstGene(offspring);
-                PrintOffspringAfterMutation(offspring);
+                // 1) Initial population
+                var population = GenerateInitialPopulation(populationSize);
 
-                // Replacement
-                population = ElitistReplacement(
-                    population,
-                    offspring,
-                    lambda,
-                    eliteCount,
-                    populationSize
-                );
+                Console.WriteLine("\nSTEP 1 - INITIAL POPULATION");
+                PrintPopulation(population);
 
-                // Best of generation
-                var bestOfGen = population
-                    .OrderBy(ind => Fitness(ind, lambda))
-                    .First();
-
-                double bestFitness = Fitness(bestOfGen, lambda);
-
-                Console.WriteLine("\n-- Best of Generation --");
-                Console.WriteLine(
-                    $"Best @ Gen {gen}: [{string.Join(", ", bestOfGen)}] Fitness = {bestFitness}"
-                );
-
-                // Early stopping
-                if (bestFitness < lastBestFitness)
+                // 2) GA MAIN LOOP
+                for (int gen = 1; gen <= generations; gen++)
                 {
-                    lastBestFitness = bestFitness;
-                    noImprovementCount = 0;
-                }
-                else
-                {
-                    noImprovementCount++;
-                }
+                    Console.WriteLine($"\nSTEP 2 - PARENT SELECTION Gen:{gen}");
 
-                if (noImprovementCount >= maxNoImprovement)
-                {
-                    Console.WriteLine(
-                        $"Early stopping: no improvement for {maxNoImprovement} generations."
+                    // Parent selection
+                    var parentPairs = SelectParentPairsRoulette(
+                        population,
+                        lambda,
+                        parentCount
                     );
-                    break;
+                    PrintParentPairs(parentPairs);
+
+                    Console.WriteLine($"\nSTEP 3 - CROSSOVER Gen:{gen}");
+                    // Crossover
+                    var offspring = UniformCrossoverWithLogging(parentPairs);
+
+                    Console.WriteLine($"\nSTEP 4 - MUTATION Gen:{gen}");
+                    // Mutation
+                    MutateFirstGene(offspring);
+                    PrintOffspringAfterMutation(offspring);
+
+                    // Replacement
+                    population = ElitistReplacement(
+                        population,
+                        offspring,
+                        lambda,
+                        eliteCount,
+                        populationSize
+                    );
+
+                    Console.WriteLine("\nSTEP 5 - REPLACEMENT (NEW POPULATION) ");
+                    PrintPopulation(population);
+
+
+                    // Best of generation
+                    var bestOfGen = population
+                        .OrderBy(ind => Fitness(ind, lambda))
+                        .First();
+
+                    double bestFitness = Fitness(bestOfGen, lambda);
+
+                    Console.WriteLine("\n-- Best of Generation --");
+                    Console.WriteLine(
+                        $"Best Gen {gen}: [{string.Join(", ", bestOfGen)}] Fitness = {bestFitness}"
+                    );
+
+                    // Early stopping
+                    if (bestFitness < lastBestFitness)
+                    {
+                        lastBestFitness = bestFitness;
+                        noImprovementCount = 0;
+                    }
+                    else
+                    {
+                        noImprovementCount++;
+                    }
+
+                    if (noImprovementCount >= maxNoImprovement)
+                    {
+                        Console.WriteLine(
+                            $"Early stopping: no improvement for {maxNoImprovement} generations."
+                        );
+                        break;
+                    }
                 }
+
+                Console.WriteLine("\n=========== FINAL BEST SOLUTION ===========");
+                PrintBestIndividual(population);
             }
 
-            Console.WriteLine("\n=========== FINAL BEST SOLUTION ===========");
-            PrintBestIndividual(population);
+           
         }
 
         // =======================
@@ -166,47 +183,83 @@
         }
 
         // =======================
-        // ROULETTE WHEEL SELECTION
+        // ROULETTE WHEEL SELECTION (PAIR-BASED)
         // =======================
+        // Amaç:
+        // - Rulet tekeri yöntemi ile parent seçimi yapmak
+        // - Aynı bireyin kendi kendisiyle eşleşmesini (self-mating) engellemek
+        // - Her pair (P1, P2) için P1 ≠ P2 olacak şekilde eşleştirme yapmak
         static List<(int[] P1, int[] P2)> SelectParentPairsRoulette(
             List<int[]> population,
             double lambda,
             int parentCount)
         {
+            // parentCount mutlaka çift ve en az 2 olmalı
             if (parentCount < 2 || parentCount % 2 != 0)
                 throw new ArgumentException("parentCount must be even and >= 2");
 
-            double[] fitness = population.Select(p => Fitness(p, lambda)).ToArray();
-            double F = fitness.Sum();
-            double[] p = fitness.Select(f => F / f).ToArray();
+            // 1) Popülasyondaki her birey için fitness hesapla
+            double[] fitness = population
+                .Select(ind => Fitness(ind, lambda))
+                .ToArray();
 
-            double sumP = p.Sum();
-            double acc = 0;
-            double[] cumulative = p.Select(pi =>
+            // 2) p(i) = F / f(i) olasılıklarını hesapla
+            double F = fitness.Sum();
+            double[] probabilities = fitness
+                .Select(f => F / f)
+                .ToArray();
+
+            // 3) Kümülatif rulet tekeri oluştur
+            double sumP = probabilities.Sum();
+            double acc = 0.0;
+
+            double[] cumulative = probabilities.Select(p =>
             {
-                acc += pi / sumP;
+                acc += p / sumP;
                 return acc;
             }).ToArray();
 
-            var selected = new List<int[]>();
+            // 4) Parent seçimi (aynı birey üst üste seçilmesin)
+            var selectedParents = new List<int[]>();
 
-            for (int k = 0; k < parentCount; k++)
+            while (selectedParents.Count < parentCount)
             {
-                double u = rand.NextDouble();
+                double u = rand.NextDouble(); // [0,1)
+
                 for (int i = 0; i < cumulative.Length; i++)
+                {
                     if (u <= cumulative[i])
                     {
-                        selected.Add(population[i]);
+                        // İş kuralı:
+                        // Aynı birey kendisiyle eşleşmemeli
+                        // (self-mating'i engelle)
+                        if (selectedParents.Count == 0 ||
+                            !ReferenceEquals(selectedParents.Last(), population[i]))
+                        {
+                            selectedParents.Add(population[i]);
+                        }
                         break;
                     }
+                }
             }
 
-            var pairs = new List<(int[], int[])>();
-            for (int i = 0; i < selected.Count; i += 2)
-                pairs.Add((selected[i], selected[i + 1]));
+            // 5) Parentları pair'lere ayır
+            var pairs = new List<(int[] P1, int[] P2)>();
+
+            for (int i = 0; i < selectedParents.Count; i += 2)
+            {
+                // Güvenlik kontrolü:
+                // Aynı bireyler yanlışlıkla yan yana geldiyse,
+                // bu pair atlanır (pratikte çok nadir olur)
+                if (ReferenceEquals(selectedParents[i], selectedParents[i + 1]))
+                    continue;
+
+                pairs.Add((selectedParents[i], selectedParents[i + 1]));
+            }
 
             return pairs;
         }
+
 
         // =======================
         // UNIFORM CROSSOVER (LOG)
@@ -242,9 +295,9 @@
                     }
                 }
 
-                Console.WriteLine($"Mask  : [{string.Join(", ", mask)}]");
-                Console.WriteLine($"Child1: [{string.Join(", ", c1)}]");
-                Console.WriteLine($"Child2: [{string.Join(", ", c2)}]");
+                Console.WriteLine($"Mask      : [{string.Join(", ", mask)}]");
+                Console.WriteLine($"Offspring1: [{string.Join(", ", c1)}]");
+                Console.WriteLine($"Offspring2: [{string.Join(", ", c2)}]");
 
                 offspring.Add(c1);
                 offspring.Add(c2);
@@ -278,29 +331,35 @@
         // =======================
         // ELITISM + REPLACEMENT
         // =======================
-        static List<int[]> ElitistReplacement(
-            List<int[]> current,
-            List<int[]> offspring,
-            double lambda,
-            int eliteCount,
-            int populationSize)
+
+        static List<int[]> ElitistReplacement(List<int[]> current, List<int[]> offspring, double lambda, int eliteCount, int populationSize)
         {
+            // 1) Elitleri seç
             var elites = current
                 .OrderBy(ind => Fitness(ind, lambda))
                 .Take(eliteCount)
                 .Select(ind => (int[])ind.Clone())
                 .ToList();
 
+            // 2) Offspring’leri fitness’a göre sırala
+            var sortedOffspring = offspring
+                .OrderBy(ind => Fitness(ind, lambda))
+                .Select(ind => (int[])ind.Clone())
+                .ToList();
+
             var next = new List<int[]>();
             next.AddRange(elites);
 
-            foreach (var c in offspring)
+            // 3) En iyi offspring’leri ekle
+            foreach (var child in sortedOffspring)
             {
                 if (next.Count >= populationSize)
                     break;
-                next.Add(c);
+
+                next.Add(child);
             }
 
+            // 4) Hâlâ eksik varsa, eski popülasyondan doldur
             if (next.Count < populationSize)
             {
                 var remaining = current
@@ -314,6 +373,7 @@
 
             return next;
         }
+
 
         // =======================
         // PRINT HELPERS
